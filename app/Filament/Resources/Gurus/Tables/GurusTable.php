@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources\Jurusans\Tables;
+namespace App\Filament\Resources\Gurus\Tables;
 
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -10,13 +10,21 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Notifications\Notification;
 
-class JurusansTable
+class GurusTable
 {
     public static function configure(Table $table): Table
     {
         return $table
             ->columns([
+                TextColumn::make('nip')
+                    ->label('NIP')
+                    ->searchable()
+                    ->sortable(),
                 TextColumn::make('nama')
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('user.email')
+                    ->label('Email')
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('created_at')

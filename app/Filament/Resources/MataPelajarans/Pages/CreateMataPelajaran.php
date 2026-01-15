@@ -21,4 +21,9 @@ class CreateMataPelajaran extends CreateRecord
             ->body('Data berhasil tersimpan')
             ->success();
     }
+
+    public function getTitle(): string
+    {
+        return 'Tambah Data Mata Pelajaran';
+    }
 }

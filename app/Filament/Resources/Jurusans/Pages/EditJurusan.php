@@ -35,4 +35,9 @@ class EditJurusan extends EditRecord
             ->body('Data berhasil diperbarui.')
             ->success();
     }
+
+    public function getTitle(): string
+    {
+        return 'Edit Data Jurusan';
+    }
 }

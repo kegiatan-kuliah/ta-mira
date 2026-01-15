@@ -48,6 +48,6 @@ class KelasTable
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])->emptyStateHeading('Tidak Ada Data');
     }
 }

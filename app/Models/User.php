@@ -55,4 +55,14 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function guru()
+    {
+        return $this->hasOne(Guru::class, 'user_id');
+    }
+
+    public function orangTua()
+    {
+        return $this->hasOne(OrangTua::class, 'user_id');
+    }
 }

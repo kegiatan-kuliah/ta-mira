@@ -20,7 +20,9 @@ class KelasResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static ?string $recordTitleAttribute = 'Kelola Kelas';
+    protected static ?string $recordTitleAttribute = 'nama';
+
+    protected static ?string $pluralModelLabel = 'Kelola Kelas';
 
     protected static ?string $navigationLabel = 'Kelola Kelas';
 

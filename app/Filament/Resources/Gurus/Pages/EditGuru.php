@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Filament\Resources\MataPelajarans\Pages;
+namespace App\Filament\Resources\Gurus\Pages;
 
-use App\Filament\Resources\MataPelajarans\MataPelajaranResource;
+use App\Filament\Resources\Gurus\GuruResource;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 use Filament\Notifications\Notification;
 
-class EditMataPelajaran extends EditRecord
+class EditGuru extends EditRecord
 {
-    protected static string $resource = MataPelajaranResource::class;
+    protected static string $resource = GuruResource::class;
 
     protected function getHeaderActions(): array
     {
@@ -23,21 +23,21 @@ class EditMataPelajaran extends EditRecord
         ];
     }
 
+    protected function getCreatedNotification(): ?\Filament\Notifications\Notification
+    {
+        return \Filament\Notifications\Notification::make()
+            ->title('Berhasil')
+            ->body('Data berhasil diperbarui.')
+            ->success();
+    }
+
     protected function getRedirectUrl(): string
     {
         return $this->getResource()::getUrl('index');
     }
 
-    protected function getSavedNotification(): ?\Filament\Notifications\Notification
-    {
-        return \Filament\Notifications\Notification::make()
-            ->title('berhasil')
-            ->body('Data berhasil diperbarui.')
-            ->success();
-    }
-
     public function getTitle(): string
     {
-        return 'Edit Data Mata Pelajaran';
+        return 'Edit Data Guru';
     }
 }
