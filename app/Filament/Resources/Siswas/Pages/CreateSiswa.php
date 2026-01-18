@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Siswas\Pages;
 
 use App\Filament\Resources\Siswas\SiswaResource;
 use Filament\Resources\Pages\CreateRecord;
+use App\Services\QrCodeService;
 
 class CreateSiswa extends CreateRecord
 {
@@ -11,13 +12,8 @@ class CreateSiswa extends CreateRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        $user = User::create([
-            'email' => $data['email'],
-            'name' => $data['nama'],
-            'password' => bcrypt($data['password']),
-            'role' => 'guru'
-        ]);
-        $data['qr_code'] = $user->id;
+        $qr = new QrCodeService;
+        $data['qr_code'] = $qr->makePngBase64($data['nis']);
 
         return $data;
     }

@@ -26,6 +26,9 @@ class SiswasTable
                 TextColumn::make('kelas.nama')
                     ->searchable()
                     ->sortable(),
+                TextColumn::make('status')
+                    ->searchable()
+                    ->sortable(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

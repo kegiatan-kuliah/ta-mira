@@ -15,7 +15,8 @@ class SiswaForm
             ->components([
                 TextInput::make('nis')
                     ->label('NIS')
-                    ->required(),
+                    ->required()
+                    ->unique(ignoreRecord: false),
                 TextInput::make('nama')
                     ->required(),
                 Select::make('kelas_id')

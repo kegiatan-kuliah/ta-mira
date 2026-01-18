@@ -23,7 +23,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('jadwal_pelajarans', function (Blueprint $table) {
-            //
+            $table->dropForeign('jadwal_pelajarans_kelas_id_foreign');
+            $table->dropColumn('kelas_id');
         });
     }
 };

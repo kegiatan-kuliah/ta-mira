@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Gurus\Schemas;
 
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
+use App\Models\User;
 
 class GuruForm
 {
@@ -12,12 +13,14 @@ class GuruForm
         return $schema
             ->components([
                 TextInput::make('nip')
-                    ->required(),
+                    ->required()
+                    ->unique(ignoreRecord: false),
                 TextInput::make('nama')
                     ->required(),
                 TextInput::make('email')
                     ->required()
-                    ->email(),
+                    ->email()
+                    ->unique(table: User::class, ignoreRecord: false),
                 TextInput::make('password')
                     ->password()
                     ->required(),
