@@ -50,7 +50,7 @@ class SiswaResource extends Resource
         return [
             'index' => ListSiswas::route('/'),
             'create' => CreateSiswa::route('/create'),
-            'edit' => EditSiswa::route('/{record}/edit'),
+            'edit' => EditSiswa::route('/{record}/edit')
         ];
     }
 }

@@ -9,6 +9,8 @@ use Filament\Actions\DeleteAction;
 use Filament\Tables\Table;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Actions\Action;
+use App\Filament\Resources\Siswas\Pages\SiswaQr;
 
 class SiswasTable
 {
@@ -42,6 +44,12 @@ class SiswasTable
                 //
             ])
             ->recordActions([
+                Action::make('cetak_qr')
+                    ->label('Cetak QR')
+                    ->icon('heroicon-o-qr-code')
+                    ->color('success')
+                    ->url(fn ($record) => route('print_qr', $record))
+                    ->openUrlInNewTab(),
                 EditAction::make(),
                 DeleteAction::make()->successNotification(
                     Notification::make()
