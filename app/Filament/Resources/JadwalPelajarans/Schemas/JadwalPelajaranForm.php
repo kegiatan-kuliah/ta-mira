@@ -16,6 +16,7 @@ class JadwalPelajaranForm
     {
         
         return $schema
+            ->columns(1)
             ->components([
                 Select::make('hari')
                     ->label('Pilih Hari')
