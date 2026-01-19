@@ -110,40 +110,76 @@ class LaporanAbsen extends Page implements HasTable
         $mapelId = $filter['mata_pelajaran_id'] ?? null;
 
         return DB::table('calendar_dates')
-            ->whereBetween('calendar_dates.tanggal', [$from, $until])
-            ->crossJoin('siswas')
-            ->join('kelas', 'kelas.id', '=', 'siswas.kelas_id')
-            ->crossJoin('jadwal_pelajarans')
-            ->join('mata_pelajarans', 'mata_pelajarans.id', '=', 'jadwal_pelajarans.mata_pelajaran_id')
-            ->leftJoin('absens', function ($join) {
-                $join->on('absens.tanggal', '=', 'calendar_dates.tanggal')
-                    ->on('absens.siswa_id', '=', 'siswas.id')
-                    ->on('absens.jadwal_pelajaran_id', '=', 'jadwal_pelajarans.id');
-            })
-            ->select([
-                DB::raw("
-                    CONCAT(
-                        calendar_dates.tanggal, '-', 
-                        siswas.id, '-', 
-                        jadwal_pelajarans.id
-                    ) as row_id
-                "),
-                DB::raw('calendar_dates.tanggal as tanggal'),
-                'siswas.id as siswa_id',
-                'siswas.nis',
-                'siswas.nama',
-                'kelas.nama as kelas',
-                'mata_pelajarans.nama as mata_pelajaran',
-                'jadwal_pelajarans.hari',
-                'jadwal_pelajarans.jam_mulai',
-                'jadwal_pelajarans.jam_selesai',
-                DB::raw("
-                    CASE 
-                        WHEN absens.id IS NULL THEN 'TIDAK MASUK' 
-                        ELSE absens.status 
-                    END as status_absen
-                "),
-            ]);
+        ->whereBetween('calendar_dates.tanggal', [$from, $until])
+
+        ->crossJoin('siswas')
+        ->join('kelas', 'kelas.id', '=', 'siswas.kelas_id')
+
+        // ⬇️ JOIN JADWAL BERDASARKAN HARI
+        ->join('jadwal_pelajarans', function ($join) {
+            $join->whereRaw("
+                UPPER(jadwal_pelajarans.hari) =
+                CASE DAYOFWEEK(calendar_dates.tanggal)
+                    WHEN 2 THEN 'MONDAY'
+                    WHEN 3 THEN 'TUESDAY'
+                    WHEN 4 THEN 'WEDNESDAY'
+                    WHEN 5 THEN 'THURSDAY'
+                    WHEN 6 THEN 'FRIDAY'
+                    WHEN 7 THEN 'SATURDAY'
+                    ELSE 'MINGGU'
+                END
+            ");
+        })
+
+        ->join('mata_pelajarans', 'mata_pelajarans.id', '=', 'jadwal_pelajarans.mata_pelajaran_id')
+
+        ->leftJoin('absens', function ($join) {
+            $join->on('absens.tanggal', '=', 'calendar_dates.tanggal')
+                ->on('absens.siswa_id', '=', 'siswas.id')
+                ->on('absens.jadwal_pelajaran_id', '=', 'jadwal_pelajarans.id');
+        })
+
+        ->when($kelasId, fn ($q) =>
+            $q->where('siswas.kelas_id', $kelasId)
+        )
+        ->when($mapelId, fn ($q) =>
+            $q->where('jadwal_pelajarans.mata_pelajaran_id', $mapelId)
+        )
+
+        ->select([
+            DB::raw("
+                CONCAT(
+                    calendar_dates.tanggal, '-', 
+                    siswas.id, '-', 
+                    jadwal_pelajarans.id
+                ) as row_id
+            "),
+            DB::raw('calendar_dates.tanggal as tanggal'),
+            'siswas.id as siswa_id',
+            'siswas.nis',
+            'siswas.nama',
+            'kelas.nama as kelas',
+            'mata_pelajarans.nama as mata_pelajaran',
+            DB::raw("
+                CASE LOWER(jadwal_pelajarans.hari)
+                    WHEN 'monday' THEN 'Senin'
+                    WHEN 'tuesday' THEN 'Selasa'
+                    WHEN 'wednesday' THEN 'Rabu'
+                    WHEN 'thursday' THEN 'Kamis'
+                    WHEN 'friday' THEN 'Jumat'
+                    WHEN 'saturday' THEN 'Sabtu'
+                    ELSE 'Minggu'
+                END as hari
+            "),
+            'jadwal_pelajarans.jam_mulai',
+            'jadwal_pelajarans.jam_selesai',
+            DB::raw("
+                CASE
+                    WHEN absens.id IS NULL THEN 'TIDAK MASUK'
+                    ELSE absens.status
+                END as status_absen
+            "),
+        ]);
     }
 
 }
