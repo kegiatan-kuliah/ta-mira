@@ -18,7 +18,7 @@ class JadwalPelajaranResource extends Resource
 {
     protected static ?string $model = JadwalPelajaran::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::CalendarDateRange;
 
     protected static ?string $recordTitleAttribute = 'mataPelajaran.nama';
 
