@@ -21,6 +21,7 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Filters\Filter;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
+use Auth;
 
 class LaporanAbsen extends Page implements HasTable
 {
@@ -76,16 +77,40 @@ class LaporanAbsen extends Page implements HasTable
 
                         Select::make('kelas_id')
                             ->label('Kelas')
-                            ->options(
-                                Kelas::query()->pluck('nama', 'id')
-                            )
+                            ->options(function () {
+                                $guruId = $this->getGuruId();
+
+                                if ($guruId) {
+                                    return Kelas::query()
+                                        ->whereIn('id', function ($q) use ($guruId) {
+                                            $q->select('kelas_id')
+                                                ->from('jadwal_pelajarans')
+                                                ->where('guru_id', $guruId);
+                                        })
+                                        ->pluck('nama', 'id');
+                                }
+
+                                return Kelas::pluck('nama', 'id');
+                            })
                             ->searchable(),
 
                         Select::make('mata_pelajaran_id')
                             ->label('Mata Pelajaran')
-                            ->options(
-                                MataPelajaran::query()->pluck('nama', 'id')
-                            )
+                            ->options(function () {
+                                $guruId = $this->getGuruId();
+
+                                if ($guruId) {
+                                    return MataPelajaran::query()
+                                        ->whereIn('id', function ($q) use ($guruId) {
+                                            $q->select('mata_pelajaran_id')
+                                                ->from('jadwal_pelajarans')
+                                                ->where('guru_id', $guruId);
+                                        })
+                                        ->pluck('nama', 'id');
+                                }
+
+                                return MataPelajaran::pluck('nama', 'id');
+                            })
                             ->searchable(),
                     ]),
             ])->defaultSort('tanggal')->emptyStateHeading('Tidak Ada Data');
@@ -108,6 +133,7 @@ class LaporanAbsen extends Page implements HasTable
         $until = $filter['until'] ?? now()->toDateString();
         $kelasId = $filter['kelas_id'] ?? null;
         $mapelId = $filter['mata_pelajaran_id'] ?? null;
+        $guruId = $this->getGuruId();
 
         return DB::table('calendar_dates')
         ->whereBetween('calendar_dates.tanggal', [$from, $until])
@@ -138,6 +164,10 @@ class LaporanAbsen extends Page implements HasTable
                 ->on('absens.siswa_id', '=', 'siswas.id')
                 ->on('absens.jadwal_pelajaran_id', '=', 'jadwal_pelajarans.id');
         })
+
+        ->when($guruId, fn ($q) =>
+            $q->where('jadwal_pelajarans.guru_id', $guruId)
+        )
 
         ->when($kelasId, fn ($q) =>
             $q->where('siswas.kelas_id', $kelasId)
@@ -180,6 +210,17 @@ class LaporanAbsen extends Page implements HasTable
                 END as status_absen
             "),
         ]);
+    }
+
+    protected function getGuruId(): ?int
+    {
+        $user = auth()->user();
+
+        if (!$user || $user->role !== 'guru') {
+            return null;
+        }
+
+        return $user->guru?->id;
     }
 
 }
