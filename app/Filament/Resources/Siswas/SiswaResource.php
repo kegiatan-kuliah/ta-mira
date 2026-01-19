@@ -14,6 +14,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use App\Filament\Resources\Siswas\RelationManagers\OrangTuasRelationManager;
+use Auth;
 
 class SiswaResource extends Resource
 {
@@ -27,7 +28,11 @@ class SiswaResource extends Resource
 
     protected static ?string $navigationLabel = 'Kelola Siswa';
 
-
+    public static function canAccess(): bool
+    {
+        return Auth::user()?->role === 'operator';
+    }
+    
     public static function form(Schema $schema): Schema
     {
         return SiswaForm::configure($schema);

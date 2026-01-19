@@ -13,6 +13,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Auth;
 
 class KelasResource extends Resource
 {
@@ -25,6 +26,11 @@ class KelasResource extends Resource
     protected static ?string $pluralModelLabel = 'Kelola Kelas';
 
     protected static ?string $navigationLabel = 'Kelola Kelas';
+
+    public static function canAccess(): bool
+    {
+        return Auth::user()?->role === 'operator';
+    }
 
     public static function form(Schema $schema): Schema
     {

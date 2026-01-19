@@ -13,6 +13,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Auth;
 
 class MataPelajaranResource extends Resource
 {
@@ -25,6 +26,11 @@ class MataPelajaranResource extends Resource
     protected static ?string $pluralModelLabel = 'Kelola Mata Pelajaran';
 
     protected static ?string $navigationLabel = 'Kelola Mata Pelajaran';
+
+    public static function canAccess(): bool
+    {
+        return Auth::user()?->role === 'operator';
+    }
 
     public static function form(Schema $schema): Schema
     {

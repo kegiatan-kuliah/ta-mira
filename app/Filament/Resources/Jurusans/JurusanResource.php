@@ -13,6 +13,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Auth;
 
 class JurusanResource extends Resource
 {
@@ -25,6 +26,11 @@ class JurusanResource extends Resource
     protected static ?string $pluralModelLabel = 'Kelola Jurusan';
 
     protected static ?string $navigationLabel = 'Kelola Jurusan';
+
+    public static function canAccess(): bool
+    {
+        return Auth::user()?->role === 'operator';
+    }
 
     public static function form(Schema $schema): Schema
     {
