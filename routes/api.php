@@ -14,4 +14,7 @@ Route::middleware('auth:sanctum')->group(function () {
     
     Route::post('refresh', [ApiController::class, 'refreshToken'])
         ->name('auth.refresh');
+
+    Route::post('scan', [ApiController::class, 'scan'])
+        ->name('scan');
 });
