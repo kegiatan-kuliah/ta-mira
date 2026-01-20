@@ -29,6 +29,9 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
+            ->brandLogo(asset('logo-smk-citra.png'))
+            ->brandLogoHeight('4rem') // optional
+            ->brandName('Nama Aplikasi') // optional
             ->login()
             ->colors([
                 'primary' => Color::Blue,
