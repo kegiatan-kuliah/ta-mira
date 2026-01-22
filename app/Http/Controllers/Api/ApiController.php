@@ -119,7 +119,7 @@ class ApiController extends Controller
     {
         $user = $request->user();
 
-        $jadwals = JadwalPelajaran::where('guru')->get();
+        $jadwals = JadwalPelajaran::with('mataPelajaran')->where('guru')->get();
 
         return response()->json([
             'jadwals' => $jadwals
