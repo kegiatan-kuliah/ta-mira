@@ -114,4 +114,15 @@ class ApiController extends Controller
             'data' => $absen
         ], 201);
     }
+
+    public function listJadwal(Request $request)
+    {
+        $user = $request->user();
+
+        $jadwals = JadwalPelajaran::where('guru')->get();
+
+        return response()->json([
+            'jadwals' => $jadwals
+        ]);
+    }
 }

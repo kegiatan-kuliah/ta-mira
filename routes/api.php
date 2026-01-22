@@ -17,4 +17,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('scan', [ApiController::class, 'scan'])
         ->name('scan');
+
+    Route::post('list-jadwal', [ApiController::class, 'listJadwal'])
+        ->name('list_jadwal');
 });
