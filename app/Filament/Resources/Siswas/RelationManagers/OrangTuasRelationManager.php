@@ -31,7 +31,7 @@ class OrangTuasRelationManager extends RelationManager
             ->components([
                 TextInput::make('nama')->required(),
                 TextInput::make('no_hp')->label('No Hp')->required(),
-                TextInput::make('user.email')
+                TextInput::make('email')
                     ->label('Nama Pengguna')
                     ->required()
                     ->unique(table: User::class, ignoreRecord: false),
