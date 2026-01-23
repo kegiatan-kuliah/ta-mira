@@ -31,9 +31,9 @@ class OrangTuasRelationManager extends RelationManager
             ->components([
                 TextInput::make('nama')->required(),
                 TextInput::make('no_hp')->label('No Hp')->required(),
-                TextInput::make('email')
+                TextInput::make('user.email')
+                    ->label('Nama Pengguna')
                     ->required()
-                    ->email()
                     ->unique(table: User::class, ignoreRecord: false),
                 TextInput::make('password')
                     ->password()
@@ -61,7 +61,7 @@ class OrangTuasRelationManager extends RelationManager
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('user.email')
-                    ->label('Email')
+                    ->label('Nama Pengguna')
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('type')
@@ -78,7 +78,7 @@ class OrangTuasRelationManager extends RelationManager
                         'email' => $data['email'],
                         'name' => $data['nama'],
                         'password' => bcrypt($data['password']),
-                        'role' => 'guru'
+                        'role' => 'orang tua'
                     ]);
                     $data['user_id'] = $user->id;
 

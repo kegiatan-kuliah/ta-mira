@@ -20,6 +20,7 @@ use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use App\Http\Controllers\SiswaQrController;
 use Illuminate\Support\Facades\Route;
+use App\Filament\Pages\Auth\Login;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -32,7 +33,7 @@ class AdminPanelProvider extends PanelProvider
             ->brandLogo(asset('logo-smk-citra.png'))
             ->brandLogoHeight('4rem') // optional
             ->brandName('Nama Aplikasi') // optional
-            ->login()
+            ->login(Login::class)
             ->colors([
                 'primary' => Color::Blue,
             ])
