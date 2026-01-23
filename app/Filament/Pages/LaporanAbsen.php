@@ -41,6 +41,10 @@ class LaporanAbsen extends Page implements HasTable
                 ->label('Tanggal')
                 ->state(fn ($record) => $record->tanggal)
                 ->date('d M Y'),
+                TextColumn::make('absen_jam')
+                ->label('Jam Absen')
+                ->state(fn ($record) => $record->absen_jam ? substr($record->absen_jam, 0, 8) : '-')
+                ->placeholder('-'),
                 TextColumn::make('nis')->label('NIS'),
                 TextColumn::make('nama')->label('Nama Siswa'),
                 TextColumn::make('kelas')->label('Kelas'),
@@ -122,95 +126,90 @@ class LaporanAbsen extends Page implements HasTable
             ->fromSub(
                 $this->reportSubQuery(),
                 'laporan_absen_rows'
-            );
+            )->select('*')
+            ->addSelect('row_id');
     }
 
     protected function reportSubQuery(): QueryBuilder
     {
         $filter = $this->getTableFilterState('filter') ?? [];
 
-        $from = $filter['from'] ?? now()->toDateString();
-        $until = $filter['until'] ?? now()->toDateString();
+        $from   = $filter['from'] ?? now()->toDateString();
+        $until  = $filter['until'] ?? now()->toDateString();
         $kelasId = $filter['kelas_id'] ?? null;
         $mapelId = $filter['mata_pelajaran_id'] ?? null;
-        $guruId = $this->getGuruId();
+        $guruId  = $this->getGuruId();
 
         return DB::table('calendar_dates')
-        ->whereBetween('calendar_dates.tanggal', [$from, $until])
 
-        ->crossJoin('siswas')
-        ->join('kelas', 'kelas.id', '=', 'siswas.kelas_id')
+            ->whereBetween('calendar_dates.tanggal', [$from, $until])
 
-        // ⬇️ JOIN JADWAL BERDASARKAN HARI
-        ->join('jadwal_pelajarans', function ($join) {
-            $join->whereRaw("
-                UPPER(jadwal_pelajarans.hari) =
-                CASE DAYOFWEEK(calendar_dates.tanggal)
-                    WHEN 2 THEN 'MONDAY'
-                    WHEN 3 THEN 'TUESDAY'
-                    WHEN 4 THEN 'WEDNESDAY'
-                    WHEN 5 THEN 'THURSDAY'
-                    WHEN 6 THEN 'FRIDAY'
-                    WHEN 7 THEN 'SATURDAY'
-                    ELSE 'MINGGU'
-                END
-            ");
-        })
+            // 1️⃣ Jadwal berdasarkan hari
+            ->join('jadwal_pelajarans', function ($join) {
+                $join->whereRaw("
+                    LOWER(jadwal_pelajarans.hari) =
+                    CASE DAYOFWEEK(calendar_dates.tanggal)
+                        WHEN 2 THEN 'monday'
+                        WHEN 3 THEN 'tuesday'
+                        WHEN 4 THEN 'wednesday'
+                        WHEN 5 THEN 'thursday'
+                        WHEN 6 THEN 'friday'
+                        WHEN 7 THEN 'saturday'
+                        ELSE 'minggu'
+                    END
+                ");
+            })
 
-        ->join('mata_pelajarans', 'mata_pelajarans.id', '=', 'jadwal_pelajarans.mata_pelajaran_id')
+            // 2️⃣ Siswa sesuai kelas jadwal
+            ->join('siswas', 'siswas.kelas_id', '=', 'jadwal_pelajarans.kelas_id')
+            ->join('kelas', 'kelas.id', '=', 'siswas.kelas_id')
+            ->join('mata_pelajarans', 'mata_pelajarans.id', '=', 'jadwal_pelajarans.mata_pelajaran_id')
 
-        ->leftJoin('absens', function ($join) {
-            $join->on('absens.tanggal', '=', 'calendar_dates.tanggal')
-                ->on('absens.siswa_id', '=', 'siswas.id')
-                ->on('absens.jadwal_pelajaran_id', '=', 'jadwal_pelajarans.id');
-        })
+            // 3️⃣ Absens (LEFT JOIN)
+            ->leftJoin('absens', function ($join) {
+                $join->on('absens.tanggal', '=', 'calendar_dates.tanggal')
+                    ->on('absens.siswa_id', '=', 'siswas.id')
+                    ->on('absens.jadwal_pelajaran_id', '=', 'jadwal_pelajarans.id');
+            })
 
-        ->when($guruId, fn ($q) =>
-            $q->where('jadwal_pelajarans.guru_id', $guruId)
-        )
+            // 4️⃣ Filter opsional
+            ->when($guruId, fn ($q) =>
+                $q->where('jadwal_pelajarans.guru_id', $guruId)
+            )
+            ->when($kelasId, fn ($q) =>
+                $q->where('jadwal_pelajarans.kelas_id', $kelasId)
+            )
+            ->when($mapelId, fn ($q) =>
+                $q->where('jadwal_pelajarans.mata_pelajaran_id', $mapelId)
+            )
 
-        ->when($kelasId, fn ($q) =>
-            $q->where('siswas.kelas_id', $kelasId)
-        )
-        ->when($mapelId, fn ($q) =>
-            $q->where('jadwal_pelajarans.mata_pelajaran_id', $mapelId)
-        )
+            // 5️⃣ SELECT FINAL
+            ->select([
+                DB::raw("
+                    CONCAT(
+                        calendar_dates.tanggal, '-',
+                        siswas.id, '-',
+                        jadwal_pelajarans.id
+                    ) AS row_id
+                "),
+                'calendar_dates.tanggal',
+                'siswas.nis',
+                'siswas.nama',
+                'kelas.nama AS kelas',
+                'mata_pelajarans.nama AS mata_pelajaran',
+                'jadwal_pelajarans.jam_mulai',
+                'jadwal_pelajarans.jam_selesai',
+                'absens.jam AS absen_jam',
 
-        ->select([
-            DB::raw("
-                CONCAT(
-                    calendar_dates.tanggal, '-', 
-                    siswas.id, '-', 
-                    jadwal_pelajarans.id
-                ) as row_id
-            "),
-            DB::raw('calendar_dates.tanggal as tanggal'),
-            'siswas.id as siswa_id',
-            'siswas.nis',
-            'siswas.nama',
-            'kelas.nama as kelas',
-            'mata_pelajarans.nama as mata_pelajaran',
-            DB::raw("
-                CASE LOWER(jadwal_pelajarans.hari)
-                    WHEN 'monday' THEN 'Senin'
-                    WHEN 'tuesday' THEN 'Selasa'
-                    WHEN 'wednesday' THEN 'Rabu'
-                    WHEN 'thursday' THEN 'Kamis'
-                    WHEN 'friday' THEN 'Jumat'
-                    WHEN 'saturday' THEN 'Sabtu'
-                    ELSE 'Minggu'
-                END as hari
-            "),
-            'jadwal_pelajarans.jam_mulai',
-            'jadwal_pelajarans.jam_selesai',
-            DB::raw("
-                CASE
-                    WHEN absens.id IS NULL THEN 'TIDAK MASUK'
-                    ELSE absens.status
-                END as status_absen
-            "),
-        ]);
+                DB::raw("
+                    CASE
+                        WHEN absens.id IS NULL THEN 'TIDAK MASUK'
+                        ELSE absens.status
+                    END AS status_absen
+                "),
+            ]);
     }
+
 
     protected function getGuruId(): ?int
     {
