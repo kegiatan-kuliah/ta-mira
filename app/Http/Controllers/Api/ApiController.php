@@ -118,8 +118,8 @@ class ApiController extends Controller
     public function listJadwal(Request $request)
     {
         $user = $request->user();
-
-        $jadwals = JadwalPelajaran::with('mataPelajaran')->where('guru_id', $user->guru->id)->get();
+        $dayName = Carbon::now()->englishDayOfWeek;
+        $jadwals = JadwalPelajaran::with('mataPelajaran')->where('guru_id', $user->guru->id)->where('hari', strtolower($dayName))->get();
 
         return response()->json([
             'jadwals' => $jadwals
