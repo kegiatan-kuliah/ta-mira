@@ -46,12 +46,12 @@
 
 <body>
     <div>
-        <img src="{{ public_path('logo-smk-citra.png') }}" alt="" width="70px" height="70px" style="position: absolute; top: 15px;">
+        <img src="{{ public_path('logo-smk-citra.png') }}" alt="" width="70px" height="70px" style="position: absolute; top: 5px;">
         <h3 style="margin-bottom: 0px; text-align: center;">SMK CITRA UTAMA PADANG</h3>
         {{-- <h1 style="margin-top: 0px; margin-bottom: 0px; text-align: center;">SMK CITRA UTAMA PADANG</h1> --}}
         
-        {{-- <p style="margin-bottom: 0px; margin-top: 0px; text-align: center;">Jl. Prof. Dr. Hamka, Air Tawar Bar., Kec. Padang Utara, Kota Padang, Sumatera Barat 25132</p>
-        <p style="margin-bottom: 0px; margin-top: 0px; text-align: center;">0751445089</p> --}}
+        <p style="margin-bottom: 0px; margin-top: 0px; text-align: center;">Jl. Seberang Padang Utara II No.27, Seberang Padang</p>
+        <p style="margin-bottom: 0px; margin-top: 0px; text-align: center;">Kec. Padang Selatan, Kota Padang, Sumatera Barat 25214, Indonesia</p>
         <hr>
     </div>
     <h2 style="text-align: center;">LAPORAN ABSEN SISWA</h2>
