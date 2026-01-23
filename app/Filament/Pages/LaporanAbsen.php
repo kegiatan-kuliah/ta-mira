@@ -19,9 +19,11 @@ use App\Models\Kelas;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Filters\Filter;
+use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Auth;
+use App\Services\LaporanAbsenQuery;
 
 class LaporanAbsen extends Page implements HasTable
 {
@@ -36,6 +38,13 @@ class LaporanAbsen extends Page implements HasTable
     {
         return $table
             ->query(fn () => $this->baseQuery())
+            ->headerActions([
+                Action::make('print')
+                    ->label('Cetak Laporan')
+                    ->icon('heroicon-o-printer')
+                    ->url(fn () => $this->printUrl())
+                    ->openUrlInNewTab(),
+            ])
             ->columns([
                 TextColumn::make('tanggal')
                 ->label('Tanggal')
@@ -123,11 +132,15 @@ class LaporanAbsen extends Page implements HasTable
     protected function baseQuery(): EloquentBuilder
     {
         return LaporanAbsenRow::query()
-            ->fromSub(
-                $this->reportSubQuery(),
-                'laporan_absen_rows'
-            )->select('*')
-            ->addSelect('row_id');
+        ->fromSub(
+            LaporanAbsenQuery::build(
+                $this->getTableFilterState('filter') ?? [],
+                $this->getGuruId()
+            ),
+            'laporan_absen_rows'
+        )
+        ->select('*')
+        ->addSelect('row_id');
     }
 
     protected function reportSubQuery(): QueryBuilder
@@ -220,6 +233,18 @@ class LaporanAbsen extends Page implements HasTable
         }
 
         return $user->guru?->id;
+    }
+
+    protected function printUrl(): string
+    {
+        $filter = $this->getTableFilterState('filter') ?? [];
+
+        return route('laporan.absen.print', [
+            'from' => $filter['from'] ?? null,
+            'until' => $filter['until'] ?? null,
+            'kelas_id' => $filter['kelas_id'] ?? null,
+            'mata_pelajaran_id' => $filter['mata_pelajaran_id'] ?? null,
+        ]);
     }
 
 }
