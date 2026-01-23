@@ -93,6 +93,12 @@ class ApiController extends Controller
             ], 404);
         }
 
+        if($siswa->kelas_id != $jadwal->kelas_id) {
+            return response()->json([
+                'message' => 'Siswa tidak terdaftar untuk kelas ini'
+            ], 404);
+        }
+
         // 4️⃣ Tentukan status (TERLAMBAT / HADIR)
         $jamMulai = Carbon::createFromFormat('H:i:s', $jadwal->jam_mulai);
 
