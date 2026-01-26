@@ -5,6 +5,7 @@ namespace App\Filament\Pages;
 use Filament\Pages\Dashboard as BaseDashboard;
 use App\Filament\Widgets\DashboardWidget;
 use App\Filament\Widgets\LastAbsenWidget;
+use App\Filament\Widgets\TotalWidget;
 use BackedEnum;
 use Filament\Support\Icons\Heroicon;
 
@@ -26,7 +27,8 @@ class Dashboard extends BaseDashboard
     {
         return [
             DashboardWidget::class,
-            LastAbsenWidget::class
+            TotalWidget::class,
+            LastAbsenWidget::class,
         ];
     }
 }
