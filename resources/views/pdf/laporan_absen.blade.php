@@ -85,13 +85,13 @@
         </tbody>
     </table>
 
-    {{-- <div class="signature">
+    <div class="signature">
         {{ Carbon::now()->translatedFormat('d F Y')}}<br>
-        <strong>Agendaris FEB UNP</strong></p>
+        <strong>Kepala Sekolah</strong></p>
         <br>
         <br>
         <br>
-        <p><strong>Alamsyah</strong><br>
-        NIP. 196804012007011001</p>
-    </div> --}}
+        <p><strong>Deswi Yeviatni, SE</strong><br>
+        NUKS: 18023L0010861142039102</p>
+    </div>
 </body>
