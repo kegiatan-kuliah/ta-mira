@@ -28,7 +28,6 @@ class Dashboard extends BaseDashboard
         return [
             DashboardWidget::class,
             TotalWidget::class,
-            LastAbsenWidget::class,
         ];
     }
 }
