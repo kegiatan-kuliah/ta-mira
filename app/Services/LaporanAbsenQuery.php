@@ -7,7 +7,7 @@ use Illuminate\Database\Query\Builder;
 
 class LaporanAbsenQuery
 {
-    public static function build(array $filter = [], ?int $guruId = null): Builder
+    public static function build(array $filter = [], ?int $guruId = null, ?array $siswaIds = null): Builder
     {
         $from    = $filter['from'] ?? now()->toDateString();
         $until   = $filter['until'] ?? now()->toDateString();
@@ -53,6 +53,10 @@ class LaporanAbsenQuery
             )
             ->when($mapelId, fn ($q) =>
                 $q->where('jadwal_pelajarans.mata_pelajaran_id', $mapelId)
+            )
+            ->when(
+                is_array($siswaIds) && count($siswaIds) > 0,
+                fn ($q) => $q->whereIn('siswas.id', $siswaIds)
             )
 
             ->select([

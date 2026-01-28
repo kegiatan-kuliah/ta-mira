@@ -135,7 +135,8 @@ class LaporanAbsen extends Page implements HasTable
         ->fromSub(
             LaporanAbsenQuery::build(
                 $this->getTableFilterState('filter') ?? [],
-                $this->getGuruId()
+                $this->getGuruId(),
+                $this->getOrangTuaSiswaIds()
             ),
             'laporan_absen_rows'
         )
@@ -245,6 +246,20 @@ class LaporanAbsen extends Page implements HasTable
             'kelas_id' => $filter['kelas_id'] ?? null,
             'mata_pelajaran_id' => $filter['mata_pelajaran_id'] ?? null,
         ]);
+    }
+
+    protected function getOrangTuaSiswaIds(): ?array
+    {
+        $user = auth()->user();
+
+        if (!$user || $user->role !== 'orang tua') {
+            return null;
+        }
+
+        return $user->orangTua
+            ?->siswas()
+            ->pluck('siswas.id')
+            ->toArray();
     }
 
 }
