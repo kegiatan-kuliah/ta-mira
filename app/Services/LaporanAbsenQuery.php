@@ -68,6 +68,9 @@ class LaporanAbsenQuery
                     ) AS row_id
                 "),
                 'calendar_dates.tanggal',
+                'siswas.id AS siswa_id',
+                'jadwal_pelajarans.id AS jadwal_pelajaran_id',
+                'absens.id AS absen_id',
                 'siswas.nis',
                 'siswas.nama',
                 'kelas.nama AS kelas',

@@ -24,6 +24,10 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Auth;
 use App\Services\LaporanAbsenQuery;
+use Filament\Actions\Action as TableAction;
+use Filament\Notifications\Notification;
+use App\Models\Absen;
+use Filament\Forms\Components\TimePicker;
 
 class LaporanAbsen extends Page implements HasTable
 {
@@ -126,7 +130,66 @@ class LaporanAbsen extends Page implements HasTable
                             })
                             ->searchable(),
                     ]),
-            ])->defaultSort('tanggal')->emptyStateHeading('Tidak Ada Data');
+            ])->defaultSort('tanggal')->emptyStateHeading('Tidak Ada Data')
+            ->actions([
+                TableAction::make('updateStatus')
+                    ->label(fn ($record) => 'Ubah Status')
+                    ->icon(fn ($record) => 'heroicon-o-pencil')
+                    ->visible(fn () => auth()->user()?->role === 'guru')
+                    ->modalHeading(fn ($record) => $record->absen_id
+                        ? 'Ubah Status Absen'
+                        : 'Buat Absen'
+                    )
+                    ->form([
+                        Select::make('status')
+                            ->label('Status Absen')
+                            ->options([
+                                'HADIR' => 'Hadir',
+                                'TERLAMBAT' => 'Terlambat',
+                                'PULANG' => 'Cabut / Keluar Pelajaran',
+                                'TIDAK MASUK' => 'Tidak Masuk',
+                            ])
+                            ->default(fn ($record) => $record->absen_id
+                                ? $record->status_absen
+                                : null
+                            )
+                            ->required(),
+                        TimePicker::make('jam')
+                        ->default(fn ($record) => $record->absen_id
+                                ? $record->absen_jam
+                                : date('h:i:s')
+                            )
+                        ->required()
+                    ])
+                    ->action(function ($record, array $data) {
+                        if (!$this->getGuruId()) {
+                            Notification::make()
+                                ->title('Tidak diizinkan')
+                                ->danger()
+                                ->send();
+                            return;
+                        }
+
+                        Absen::updateOrCreate(
+                            [
+                                'tanggal' => $record->tanggal,
+                                'siswa_id' => $record->siswa_id,
+                                'jadwal_pelajaran_id' => $record->jadwal_pelajaran_id,
+                            ],
+                            [
+                                'status' => $data['status'],
+                                'jam' => $data['jam']
+                            ]
+                        );
+
+                        Notification::make()
+                            ->title('Status absen berhasil diperbarui')
+                            ->success()
+                            ->send();
+
+                        $this->resetTable();
+                    }),
+            ]);
     }
 
     protected function baseQuery(): EloquentBuilder
@@ -207,6 +270,9 @@ class LaporanAbsen extends Page implements HasTable
                     ) AS row_id
                 "),
                 'calendar_dates.tanggal',
+                'siswas.id AS siswa_id',
+                'jadwal_pelajarans.id AS jadwal_pelajaran_id',
+                'absens.id AS absen_id',
                 'siswas.nis',
                 'siswas.nama',
                 'kelas.nama AS kelas',
