@@ -146,8 +146,7 @@ class LaporanAbsen extends Page implements HasTable
                             ->options([
                                 'HADIR' => 'Hadir',
                                 'TERLAMBAT' => 'Terlambat',
-                                'PULANG' => 'Cabut / Keluar Pelajaran',
-                                'TIDAK MASUK' => 'Tidak Masuk',
+                                'CABUT' => 'Bolos'
                             ])
                             ->default(fn ($record) => $record->absen_id
                                 ? $record->status_absen
