@@ -77,7 +77,10 @@ class LaporanAbsen extends Page implements HasTable
                     ->color(fn ($state) => match ($state) {
                         'HADIR' => 'success',
                         'TERLAMBAT' => 'warning',
+                        'IZIN' => 'warning',
+                        'SAKIT' => 'warning',
                         'TIDAK MASUK' => 'danger',
+                        'CABUT' => 'danger',
                         default => 'gray',
                     }),
             ])
@@ -146,7 +149,9 @@ class LaporanAbsen extends Page implements HasTable
                             ->options([
                                 'HADIR' => 'Hadir',
                                 'TERLAMBAT' => 'Terlambat',
-                                'CABUT' => 'Bolos'
+                                'CABUT' => 'Bolos',
+                                'IZIN' => 'Izin',
+                                'SAKIT' => 'Sakit',
                             ])
                             ->default(fn ($record) => $record->absen_id
                                 ? $record->status_absen
